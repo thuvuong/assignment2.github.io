@@ -191,6 +191,30 @@ Rectangle.prototype.draw = function (ctx) {
 
 };
 
+
+// return true if the rectangle and circle are colliding
+function RectCircleColliding(circle, rect) {
+    var distX = Math.abs(circle.x - rect.x - rect.w / 2);
+    var distY = Math.abs(circle.y - rect.y - rect.h / 2);
+
+    if (distX > (rect.w / 2 + circle.r)) {
+        return false;
+    }
+    if (distY > (rect.h / 2 + circle.r)) {
+        return false;
+    }
+
+    if (distX <= (rect.w / 2)) {
+        return true;
+    }
+    if (distY <= (rect.h / 2)) {
+        return true;
+    }
+
+    var dx = distX - rect.w / 2;
+    var dy = distY - rect.h / 2;
+    return (dx * dx + dy * dy <= (circle.r * circle.r));
+}
 var friction = 1;
 var acceleration = 1000000;
 var maxSpeed = 200;
@@ -209,19 +233,19 @@ ASSET_MANAGER.downloadAll(function () {
 
     var gameEngine = new GameEngine();
     var circle = new Circle(gameEngine);
-	var rectangle = new Rectangle(gameEngine, Math.random() * 800, Math.random() * 800);
+	var rect = new Rectangle(gameEngine, Math.random() * 800, Math.random() * 800);
 	
     circle.setIt();
     gameEngine.addEntity(circle);
-	gameEngine.addEntity(rectangle);
+	gameEngine.addEntity(rect);
 	
     for (var i = 0; i < 12; i++) {
         circle = new Circle(gameEngine);
         gameEngine.addEntity(circle);
     }
 	for (var i = 0; i < 20; i++) {
-		rectangle = new Rectangle(gameEngine, Math.random() * 800, Math.random() * 800);
-		gameEngine.addEntity(rectangle);
+		rect = new Rectangle(gameEngine, Math.random() * 800, Math.random() * 800);
+		gameEngine.addEntity(rect);
 	}
 	
     gameEngine.init(ctx);
