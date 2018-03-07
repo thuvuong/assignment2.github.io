@@ -43,6 +43,30 @@ Circle.prototype.collide = function (other) {
     return distance(this, other) < this.radius + other.radius;
 };
 
+// return true if the rectangle and circle are colliding
+Circle.prototype.rectCircleColliding = function (rect) {
+    var distX = Math.abs(this.x - rect.x - rect.w / 2);
+    var distY = Math.abs(this.y - rect.y - rect.h / 2);
+
+    if (distX > (rect.w / 2 + this.radius)) {
+        return false;
+    }
+    if (distY > (rect.h / 2 + this.radius)) {
+        return false;
+    }
+
+    if (distX <= (rect.w / 2)) {
+        return true;
+    }
+    if (distY <= (rect.h / 2)) {
+        return true;
+    }
+
+    var dx = distX - rect.w / 2;
+    var dy = distY - rect.h / 2;
+    return (dx * dx + dy * dy <= (this.r * this.r));
+}
+
 Circle.prototype.collideLeft = function () {
     return (this.x - this.radius) < 0;
 };
@@ -83,7 +107,9 @@ Circle.prototype.update = function () {
 
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
+        if ((ent != this && this.collide(ent)) || (ent != this && this.rectCircleColliding(ent))) {
+            console.log("hello");
+            console.log(ent != this && this.rectCircleColliding(ent));
             var temp = { x: this.velocity.x, y: this.velocity.y };
 
             var dist = distance(this, ent);
@@ -114,7 +140,9 @@ Circle.prototype.update = function () {
             }
         }
 
-        if (ent != this && this.collide({ x: ent.x, y: ent.y, radius: this.visualRadius })) {
+        if ((ent != this && this.collide({ x: ent.x, y: ent.y, radius: this.visualRadius })) || (ent != this && this.rectCircleColliding({x: ent.x, y: ent.y}))) {
+            console.log("hello");
+            console.log(ent != this && this.rectCircleColliding({x: ent.x, y: ent.y}));
             var dist = distance(this, ent);
             
 			//red
@@ -166,8 +194,8 @@ Circle.prototype.draw = function (ctx) {
 function Rectangle(game, startX, startY) {
 	this.x = startX;
 	this.y = startY;
-	this.width = Math.random() * 100;
-	this.height = Math.random() * 100;
+	this.width = Math.floor(Math.random() * 100 + 10);
+	this.height = Math.floor(Math.random() * 100 + 10);
 	this.colors = ["White", "Red", "Green", "Blue"];
 	Entity.call(this, game, this.x, this.y);
 }
@@ -192,29 +220,7 @@ Rectangle.prototype.draw = function (ctx) {
 };
 
 
-// return true if the rectangle and circle are colliding
-function RectCircleColliding(circle, rect) {
-    var distX = Math.abs(circle.x - rect.x - rect.w / 2);
-    var distY = Math.abs(circle.y - rect.y - rect.h / 2);
 
-    if (distX > (rect.w / 2 + circle.r)) {
-        return false;
-    }
-    if (distY > (rect.h / 2 + circle.r)) {
-        return false;
-    }
-
-    if (distX <= (rect.w / 2)) {
-        return true;
-    }
-    if (distY <= (rect.h / 2)) {
-        return true;
-    }
-
-    var dx = distX - rect.w / 2;
-    var dy = distY - rect.h / 2;
-    return (dx * dx + dy * dy <= (circle.r * circle.r));
-}
 var friction = 1;
 var acceleration = 1000000;
 var maxSpeed = 200;
@@ -230,10 +236,10 @@ ASSET_MANAGER.downloadAll(function () {
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
 
-
+    
     var gameEngine = new GameEngine();
     var circle = new Circle(gameEngine);
-	var rect = new Rectangle(gameEngine, Math.random() * 800, Math.random() * 800);
+	var rect = new Rectangle(gameEngine, Math.floor(Math.random() * 650) ,Math.floor(Math.random() * 650));
 	
     circle.setIt();
     gameEngine.addEntity(circle);
@@ -243,8 +249,8 @@ ASSET_MANAGER.downloadAll(function () {
         circle = new Circle(gameEngine);
         gameEngine.addEntity(circle);
     }
-	for (var i = 0; i < 20; i++) {
-		rect = new Rectangle(gameEngine, Math.random() * 800, Math.random() * 800);
+	for (var i = 0; i < 12; i++) {
+		rect = new Rectangle(gameEngine, Math.floor(Math.random() * 650), Math.floor(Math.random() * 650));
 		gameEngine.addEntity(rect);
 	}
 	
